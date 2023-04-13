@@ -1,0 +1,44 @@
+server:
+  port: 9000
+
+spring:
+  application:
+    name: AMD-Backend-Auth
+  h2:
+    console:
+      enabled: true
+      settings:
+        web-allow-others: true
+      path: /h2-console
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    generate-ddl: true
+    defer-datasource-initialization: true
+
+eureka:
+  instance:
+    instacne-id: ${spring.application.name}:${spring.application.instance_id:${server.port}
+    client:
+      register-with-eureka: true
+      fetch-registry: true
+      service-url:
+        defaultZone: http://localhost:8761/eureka/
+      enabled: true
+
+logging:
+  level:
+    com.backend.auth: DEBUG
+
+greeting:
+  message: AMD-Backend Server
+
+# token 만료 시간은 30분으로 지정
+token:
+  expiration_time: 3600
+  secret: AMD_Backend_Authentication_Token
