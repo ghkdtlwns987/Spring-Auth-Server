@@ -1,5 +1,6 @@
 package com.amd.backend.Domain.User.DTO;
 
+import com.amd.backend.Domain.User.Entity.UserEntity;
 import lombok.*;
 
 import javax.validation.constraints.Email;
@@ -25,4 +26,12 @@ public class RequestUserRegisterDTO {
     @NotNull(message = "Password cannot be null")
     @Size(min = 8, message = "Password must be equal or grater than 8 characters")
     private String pwd;
+
+    /*
+    public UserEntity toEntity(){
+        return UserEntity.builder()
+                .e
+    }
+    */
+
 }

@@ -26,7 +26,9 @@ ext {
 
 dependencies {
 	// jwt
-	implementation group: 'io.jsonwebtoken', name: 'jjwt', version: '0.9.1'
+	implementation 'io.jsonwebtoken:jjwt-api:0.11.2'
+	implementation 'io.jsonwebtoken:jjwt-jackson:0.11.2'
+	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.2'
 
 	// openjdk-11 부터는 java EE API 가 포함되어있지 않아jaxb 패키지를 설치해야 함.
 	implementation group: 'org.glassfish.jaxb', name: 'jaxb-runtime', version: '2.3.2'

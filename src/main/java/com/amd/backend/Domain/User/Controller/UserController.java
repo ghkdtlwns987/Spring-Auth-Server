@@ -2,7 +2,8 @@ package com.amd.backend.Domain.User.Controller;
 
 import com.amd.backend.Domain.User.DTO.UserDTO;
 import com.amd.backend.Domain.User.Entity.UserEntity;
-import com.amd.backend.Domain.User.Service.UserService;
+import com.amd.backend.Domain.User.Service.AuthService;
+import com.amd.backend.Domain.User.Repository.UserService;
 import com.amd.backend.Domain.User.VO.Greeting;
 import com.amd.backend.Domain.User.DTO.RequestUserRegisterDTO;
 import com.amd.backend.Domain.User.DTO.ResponseUserDTO;
@@ -16,21 +17,24 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 // @RequestMapping("/auth")
 @RequestMapping("/") // API Gateway에서 해당 요청으로 매핑하도록 했기 때문에 @RequestMapping이 불필요함.
 public class UserController {
-    private Environment env;
-    private UserService userService;
+    private final Environment env;
+    private final UserService userService;
+    private final AuthService authService;
 
     @Autowired
     private Greeting greeting;
 
     @Autowired
-    public UserController(Environment env, UserService userService){
+    public UserController(Environment env, UserService userService, AuthService authService){
         this.env = env;
         this.userService = userService;
+        this.authService = authService;
     }
 
     /**
@@ -57,26 +61,6 @@ public class UserController {
     }
 
     /**
-     * 회원가입 시 처리되는 API입니다.
-     * @param user
-     * @return ResponseUser
-     * @author : 황시준
-     * @since : 1.0
-     */
-    @PostMapping("/signup")
-    public ResponseEntity<ResponseUserDTO> signup(@RequestBody RequestUserRegisterDTO user){
-        ModelMapper mapper = new ModelMapper();
-        mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-
-        UserDTO userDTO = mapper.map(user, UserDTO.class);
-        userService.signup(userDTO);
-
-        //ResponseUser reponseUser = mapper.map(user,UserDTO.class);
-        ResponseUserDTO responseUserDTO = mapper.map(userDTO, ResponseUserDTO.class);
-        return ResponseEntity.status(HttpStatus.CREATED).body(responseUserDTO);
-    }
-
-    /**
      * 전체 회원 정보를 조회하는 API입니다.
      * @return 전체 회원 목록
      * @author : 황시준
@@ -96,15 +80,15 @@ public class UserController {
 
     /**
      * 회원 정보를 검색하는 API입니다.
-     * 검색할 때는 userId를 사용합니다.
-     * @param userId
+     * 검색할 때는 email을 사용합니다.
+     * @param email
      * @return ResponseEntity
      * @author : 황시준
      * @since : 1.0
      */
-    @GetMapping("/{userId}")
-    public ResponseEntity<ResponseUserDTO> getUser(@PathVariable("userId") String userId){
-        UserDTO userDTO = userService.getUserByUserId(userId);
+    @GetMapping("/{email}")
+    public ResponseEntity<ResponseUserDTO> getUser(@PathVariable("email") String email){
+        UserDTO userDTO = userService.getUserDetailsByEmail(email);
 
         ResponseUserDTO returnValue = new ModelMapper().map(userDTO, ResponseUserDTO.class);
 

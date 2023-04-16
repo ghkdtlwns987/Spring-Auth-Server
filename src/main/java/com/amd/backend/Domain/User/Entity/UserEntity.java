@@ -1,8 +1,10 @@
 package com.amd.backend.Domain.User.Entity;
 
+import lombok.Builder;
 import lombok.Data;
 
 import javax.persistence.*;
+import java.util.Date;
 
 /**
  * JPA Database 요소를 만드는 Entity입니다/
@@ -11,7 +13,7 @@ import javax.persistence.*;
  */
 @Data
 @Entity
-@Table(name="users")
+@Table(name="amd_users")
 public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,4 +30,7 @@ public class UserEntity {
 
     @Column(nullable = false, unique = true)
     private String encryptedPwd;
+
+    @Column(nullable = false)
+    private Date createAt;
 }

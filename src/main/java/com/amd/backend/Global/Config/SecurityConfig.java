@@ -1,8 +1,8 @@
 package com.amd.backend.Global.Config;
 
-import com.amd.backend.Domain.User.Service.UserService;
+import com.amd.backend.Domain.User.Repository.UserService;
+import com.amd.backend.Global.Config.JWT.Token.TokenProvider;
 import com.amd.backend.Global.Filter.AuthenticationFilter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -18,16 +18,24 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private UserService userService;
     private BCryptPasswordEncoder bCryptPasswordEncoder;
     private Environment env;
+    private TokenProvider tokenProvider;
 
 
-    public SecurityConfig(Environment env, UserService userService, BCryptPasswordEncoder bCryptPasswordEncoder){
+    public SecurityConfig(Environment env,
+                          UserService userService,
+                          BCryptPasswordEncoder bCryptPasswordEncoder,
+                          TokenProvider tokenProvider
+                          ){
         this.env = env;
         this.userService = userService;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+        this.tokenProvider = tokenProvider;
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception{
+        http.formLogin().disable();
+        http.logout().disable();
         http.csrf().disable();
         http.authorizeRequests()
                 .antMatchers("/health_check")
@@ -40,9 +48,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     // AuthentionFilter
     private AuthenticationFilter getAuthentionFilter() throws Exception{
-        AuthenticationFilter authenticationFilter =
-                new AuthenticationFilter(authenticationManager(), userService, env); // 인증처리
-        // authenticationFilter.setAuthenticationManager(authenticationManager()); // 인증처리를 해주는 Manager
+        AuthenticationFilter authenticationFilter =  new AuthenticationFilter(authenticationManager(), userService, env, tokenProvider);
 
         return authenticationFilter;
     }

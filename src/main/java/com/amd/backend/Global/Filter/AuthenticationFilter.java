@@ -2,7 +2,9 @@ package com.amd.backend.Global.Filter;
 
 import com.amd.backend.Domain.User.DTO.RequestUserLoginDTO;
 import com.amd.backend.Domain.User.DTO.UserDTO;
-import com.amd.backend.Domain.User.Service.UserService;
+import com.amd.backend.Domain.User.Repository.TokenRepository;
+import com.amd.backend.Domain.User.Repository.UserService;
+import com.amd.backend.Global.Config.JWT.Token.TokenProvider;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -12,8 +14,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -23,7 +23,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Login 기능을 위한 Authentication Filter를 구현하합니다.
@@ -32,18 +31,22 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
-
-    private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 30; // 30 minutes
-    private static final long REFRESH_TOKEN_EXPIRE_TIME = 1000 * 60 * 60 * 24 * 7; // 7 days
     private UserService userService;
     private Environment env;        // expiredToken, JWT_Secret
+    private TokenRepository tokenRepository;
+    private final String AUTHORIZATION_HEADER = "Authorization";
+    private final String UUID_HEADER = "UUID";
+    private final String EXPIRED_HEADER = "X-Expire";
+    private static final String BEARER_PREFIX = "Bearer ";
 
     public AuthenticationFilter(AuthenticationManager authenticationManager
                                 ,UserService userService
-                                ,Environment env) {
+                                ,Environment env
+                                ,TokenRepository tokenRepository) {
         super.setAuthenticationManager(authenticationManager);
         this.env = env;
         this.userService = userService;
+        this.tokenRepository = tokenRepository;
     }
 
     @Override
@@ -71,6 +74,18 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         }
     }
 
+    /**
+     * 인증이 완료되면 토큰을 발급합니다.
+     * @param request
+     * @param response
+     * @param chain
+     * @param authResult the object returned from the <tt>attemptAuthentication</tt>
+     * method.
+     * @throws IOException
+     * @throws ServletException
+     * @author : 황시준
+     * @since : 1.0
+     */
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response,
                                             FilterChain chain,
@@ -80,17 +95,11 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         String userName = ((User)authResult.getPrincipal()).getUsername();
         UserDTO userDetails = userService.getUserDetailsByEmail(userName);
 
-        long now = (new Date()).getTime();
-        Date accessTokenExpiresIn = new Date(now + ACCESS_TOKEN_EXPIRE_TIME);
-        String token =
-                Jwts.builder()
-                                .setSubject(userDetails.getUserId())
-                                        .setExpiration(accessTokenExpiresIn)
-                                                        .signWith(SignatureAlgorithm.HS512, env.getProperty("token.secret"))
-                        .compact();
+        String accessToken = tokenRepository.createAccessToken(userDetails.getUserId());        // Access Token 생성
+        Long expiredTime = tokenRepository.extractExpiredTime(accessToken).getTime();           // 토큰 만료시간
 
-        response.addHeader("token", token);
-        response.addHeader("userId", userDetails.getUserId());
+        response.addHeader(AUTHORIZATION_HEADER, BEARER_PREFIX + accessToken);
+        response.addHeader(EXPIRED_HEADER, String.valueOf(expiredTime));
+        response.addHeader(UUID_HEADER, userDetails.getUserId());
     }
-
 }

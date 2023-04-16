@@ -41,4 +41,4 @@ greeting:
 # token 만료 시간은 30분으로 지정
 token:
   expiration_time: 3600
-  secret: AMD_Backend_Authentication_Token
+  secret: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9eyJmb28iOiJiYXIiLCJpYXQiOjE0OTg1ODY1ODAsImV4cCI6MTQ5OTE5MTM4MH0YMSZ1PmRsjxyrtkLADayLJ99OEz0BzgpFZmeVXSRE8

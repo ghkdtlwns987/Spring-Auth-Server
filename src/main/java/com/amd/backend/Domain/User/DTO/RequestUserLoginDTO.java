@@ -1,6 +1,7 @@
 package com.amd.backend.Domain.User.DTO;
 
 import lombok.Data;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
@@ -21,4 +22,8 @@ public class RequestUserLoginDTO {
     @NotBlank(message = "Password cannot be null")
     @Size(min = 8, message = "Password must be equals or greather than 8 characters")
     private String pwd;
+
+    public UsernamePasswordAuthenticationToken toAuthentication() {
+        return new UsernamePasswordAuthenticationToken(email, pwd);
+    }
 }
