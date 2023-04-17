@@ -6,6 +6,8 @@ import lombok.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.util.Date;
+import java.util.UUID;
 
 /**
  * 회원가입에 쓰이는 DTO입니다.
@@ -27,11 +29,16 @@ public class RequestUserRegisterDTO {
     @Size(min = 8, message = "Password must be equal or grater than 8 characters")
     private String pwd;
 
-    /*
+
     public UserEntity toEntity(){
         return UserEntity.builder()
-                .e
+                .email(getEmail())
+                .name(getName())
+                .userId(UUID.randomUUID().toString())
+                .encryptedPwd(getPwd())
+                .createAt(new Date())
+                .build();
     }
-    */
+
 
 }

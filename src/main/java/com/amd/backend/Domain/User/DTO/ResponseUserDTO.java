@@ -1,7 +1,10 @@
 package com.amd.backend.Domain.User.DTO;
 
+import com.amd.backend.Domain.User.Entity.UserEntity;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
@@ -11,11 +14,17 @@ import java.util.List;
  * @since : 1.0
  */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ResponseUserDTO {
+    private String userId;
     private String email;
     private String name;
-    private String userId;
 
-    private List<ResponseUserDTO> data;
+    // private List<ResponseUserDTO> data;
+
+    public static ResponseUserDTO of(UserEntity userEntity){
+        return new ResponseUserDTO(userEntity.getUserId(), userEntity.getEmail(), userEntity.getName());
+    }
 }

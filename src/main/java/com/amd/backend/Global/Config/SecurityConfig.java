@@ -20,6 +20,20 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private Environment env;
     private TokenProvider tokenProvider;
 
+    // Swagger 3.x 설정
+    private static final String[] PERMIT_URL_ARRAY = {
+            /* swagger v2 */
+            "/v2/api-docs",
+            "/swagger-resources",
+            "/swagger-resources/**",
+            "/configuration/ui",
+            "/configuration/security",
+            "/swagger-ui.html",
+            "/webjars/**",
+            /* swagger v3 */
+            "/v3/api-docs/**",
+            "/swagger-ui/**"
+    };
 
     public SecurityConfig(Environment env,
                           UserService userService,
@@ -64,6 +78,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public void configure(WebSecurity web) throws Exception {
         web
                 .ignoring()
-                .antMatchers("/h2-console/**");
+                .antMatchers(PERMIT_URL_ARRAY);
     }
 }
